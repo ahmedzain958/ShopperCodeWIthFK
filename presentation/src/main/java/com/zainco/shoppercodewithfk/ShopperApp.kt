@@ -1,3 +1,5 @@
+package com.zainco.shoppercodewithfk
+
 import android.app.Application
 import com.zainco.data.di.dataModule
 import com.zainco.domain.di.domainModule

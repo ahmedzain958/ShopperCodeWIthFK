@@ -6,11 +6,12 @@ import com.zainco.domain.model.CartModel
 import com.zainco.domain.model.CartSummary
 import com.zainco.domain.model.CategoriesListModel
 import com.zainco.domain.model.OrdersListModel
+import com.zainco.domain.model.Product
 import com.zainco.domain.model.ProductListModel
 import com.zainco.domain.model.request.AddCartRequestModel
 
 interface NetworkService {
-    suspend fun getProducts(category: Int?): ResultWrapper<ProductListModel>
+    suspend fun getProducts(): ResultWrapper<List<Product>>
     suspend fun getCategories(): ResultWrapper<CategoriesListModel>
 
     suspend fun addProductToCart(

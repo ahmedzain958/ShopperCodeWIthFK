@@ -1,5 +1,6 @@
 package com.zainco.data.network
 
+import com.zainco.data.model.DataProductModel
 import com.zainco.domain.model.AddressDomainModel
 import com.zainco.domain.model.CartItemModel
 import com.zainco.domain.model.CartModel
@@ -18,6 +19,7 @@ import com.zainco.data.model.response.CategoriesListResponse
 import com.zainco.data.model.response.OrdersListResponse
 import com.zainco.data.model.response.PlaceOrderResponse
 import com.zainco.data.model.response.ProductListResponse
+import com.zainco.domain.model.Product
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException
@@ -29,18 +31,19 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.Parameters
 import io.ktor.http.contentType
+import io.ktor.util.InternalAPI
 import io.ktor.utils.io.errors.IOException
 
 class NetworkServiceImpl(val client: HttpClient) : NetworkService {
     private val baseUrl = "https://ecommerce-ktor-4641e7ff1b63.herokuapp.com/v2"
-    override suspend fun getProducts(category: Int?): ResultWrapper<ProductListModel> {
-        val url =
-            if (category != null) "$baseUrl/products/category/$category" else "$baseUrl/products"
-        return makeWebRequest(url = url,
+    override suspend fun getProducts(): ResultWrapper<List<Product>> {
+        return makeWebRequest(
+            url = "https://fakestoreapi.com/products",
             method = HttpMethod.Get,
-            mapper = { dataModels: ProductListResponse ->
-                dataModels.toProductList()
-            })
+            mapper = { dataModels: List<DataProductModel> ->
+                dataModels.map { it.toProduct() }
+            }
+        )
     }
 
     override suspend fun getCategories(): ResultWrapper<CategoriesListModel> {
@@ -122,6 +125,9 @@ class NetworkServiceImpl(val client: HttpClient) : NetworkService {
             })
     }
 
+
+
+    @OptIn(InternalAPI::class)
     suspend inline fun <reified T, R> makeWebRequest(
         url: String,
         method: HttpMethod,
@@ -147,7 +153,7 @@ class NetworkServiceImpl(val client: HttpClient) : NetworkService {
                 }
                 // Set body for POST, PUT, etc.
                 if (body != null) {
-                    setBody(body)
+                    this.body = body
                 }
 
                 // Set content type
@@ -165,5 +171,6 @@ class NetworkServiceImpl(val client: HttpClient) : NetworkService {
             ResultWrapper.Failure(e)
         }
     }
+
 
 }

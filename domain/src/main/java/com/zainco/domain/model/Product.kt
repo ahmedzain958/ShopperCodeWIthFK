@@ -1,10 +1,13 @@
 package com.zainco.domain.model
 
 data class Product(
-    val id: Int,
+    val id: Long,
     val title: String,
     val price: Double,
-    val categoryId: Int,
+    val category: String,
     val description: String,
     val image: String
-)
+) {
+    val priceString: String
+        get() = "$$price"
+}
