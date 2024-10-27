@@ -12,7 +12,7 @@ import com.zainco.domain.model.request.AddCartRequestModel
 
 interface NetworkService {
     suspend fun getProducts(category: String?): ResultWrapper<List<Product>>
-    suspend fun getCategories(): ResultWrapper<CategoriesListModel>
+    suspend fun getCategories(): ResultWrapper<List<String>>
 
     suspend fun addProductToCart(
         request: AddCartRequestModel

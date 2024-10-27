@@ -2,6 +2,7 @@ package com.zainco.shoppercodewithfk
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +29,8 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,6 +50,23 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun HomeScreen(navController: NavController, viewModel: HomeViewModel = koinViewModel()) {
+    val loading = remember {
+        mutableStateOf(false)
+    }
+    val error = remember {
+        mutableStateOf<String?>(null)
+    }
+    val feature = remember {
+        mutableStateOf<List<Product>>(emptyList())
+    }
+
+    val popular = remember {
+        mutableStateOf<List<Product>>(emptyList())
+    }
+
+    val categories = remember {
+        mutableStateOf<List<String>>(emptyList())
+    }
     Scaffold {
         Surface(
             modifier = Modifier
@@ -55,31 +75,48 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = koinView
         ) {
             when (val uiState = viewModel.uiState.collectAsState().value) {
                 is HomeScreenUIEvents.Loading -> {
-                    CircularProgressIndicator(
-                        Modifier
-                            .width(64.dp)
-                            .height(64.dp)
-                    )
+                    loading.value = true
+                    error.value = null
                 }
 
                 is HomeScreenUIEvents.Success -> {
                     val data = (uiState as HomeScreenUIEvents.Success)
-                    HomeContent(data.featured, data.popularProducts)
+                    feature.value = data.featured
+                    popular.value = data.popularProducts
+                    categories.value = data.categories
+                    loading.value = false
+                    error.value = null
+
                 }
 
                 is HomeScreenUIEvents.Error -> {
-                    Text(text = (uiState as HomeScreenUIEvents.Error).message)
+                    val errorMessage = (uiState as HomeScreenUIEvents.Error).message
+                    loading.value = false
+                    error.value = errorMessage
                 }
 
                 HomeScreenUIEvents.NavigateToProductDetail -> TODO()
             }
+            HomeContent(
+                feature.value,
+                popular.value,
+                categories.value,
+                loading.value,
+                error.value
+            )
         }
     }
 
 }
 
 @Composable
-fun HomeContent(featured: List<Product>, popularProducts: List<Product>) {
+fun HomeContent(
+    featured: List<Product>,
+    popularProducts: List<Product>,
+    categories: List<String>,
+    isLoading: Boolean = false,
+    errorMsg: String? = null,
+) {
     LazyColumn {
         item {
             ProfileHeader()
@@ -88,6 +125,41 @@ fun HomeContent(featured: List<Product>, popularProducts: List<Product>) {
             Spacer(modifier = Modifier.size(16.dp))
         }
         item {
+            if (isLoading) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CircularProgressIndicator(
+                        Modifier.size(50.dp)
+                    )
+                    Text(text = "Loading...", style = MaterialTheme.typography.bodyMedium)
+                }
+
+            }
+            errorMsg?.let{
+                Text(text = it, style = MaterialTheme.typography.bodyMedium)
+            }
+            if (categories.isNotEmpty()) {
+                Spacer(modifier = Modifier.size(16.dp))
+                LazyRow {
+                    items(categories) { category ->
+                        Text(
+                            text = category.replaceFirstChar { it.uppercase() },
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier
+                                .padding(horizontal = 8.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(MaterialTheme.colorScheme.primary)
+                                .padding(8.dp)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.size(16.dp))
+            }
             if (featured.isNotEmpty()) {
                 HomeProductRow(products = featured, title = "Featured")
                 Spacer(modifier = Modifier.size(16.dp))
@@ -98,6 +170,7 @@ fun HomeContent(featured: List<Product>, popularProducts: List<Product>) {
         }
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun ProfileHeader() {
@@ -172,6 +245,7 @@ fun SearchBar(value: String, onTextChanged: (String) -> Unit) {
     )
 
 }
+
 @Composable
 fun ProductItem(product: Product) {
     Card(

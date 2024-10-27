@@ -5,14 +5,12 @@ import com.zainco.data.model.request.AddToCartRequest
 import com.zainco.data.model.request.AddressDataModel
 import com.zainco.data.model.response.CartResponse
 import com.zainco.data.model.response.CartSummaryResponse
-import com.zainco.data.model.response.CategoriesListResponse
 import com.zainco.data.model.response.OrdersListResponse
 import com.zainco.data.model.response.PlaceOrderResponse
 import com.zainco.domain.model.AddressDomainModel
 import com.zainco.domain.model.CartItemModel
 import com.zainco.domain.model.CartModel
 import com.zainco.domain.model.CartSummary
-import com.zainco.domain.model.CategoriesListModel
 import com.zainco.domain.model.OrdersListModel
 import com.zainco.domain.model.Product
 import com.zainco.domain.model.request.AddCartRequestModel
@@ -45,13 +43,11 @@ class NetworkServiceImpl(val client: HttpClient) : NetworkService {
         )
     }
 
-    override suspend fun getCategories(): ResultWrapper<CategoriesListModel> {
-        val url = "$baseUrl/categories"
-        return makeWebRequest(url = url,
+    override suspend fun getCategories(): ResultWrapper<List<String>> {
+        val url = "$baseUrl/products/categories"
+        return makeWebRequest<List<String>, List<String>>(url = url,
             method = HttpMethod.Get,
-            mapper = { categories: CategoriesListResponse ->
-                categories.toCategoriesList()
-            })
+            mapper = null)
     }
 
     override suspend fun addProductToCart(request: AddCartRequestModel): ResultWrapper<CartModel> {
