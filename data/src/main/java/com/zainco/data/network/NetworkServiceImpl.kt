@@ -1,16 +1,6 @@
 package com.zainco.data.network
 
 import com.zainco.data.model.DataProductModel
-import com.zainco.domain.model.AddressDomainModel
-import com.zainco.domain.model.CartItemModel
-import com.zainco.domain.model.CartModel
-import com.zainco.domain.model.CartSummary
-import com.zainco.domain.model.CategoriesListModel
-import com.zainco.domain.model.OrdersListModel
-import com.zainco.domain.model.ProductListModel
-import com.zainco.domain.model.request.AddCartRequestModel
-import com.zainco.domain.network.NetworkService
-import com.zainco.domain.network.ResultWrapper
 import com.zainco.data.model.request.AddToCartRequest
 import com.zainco.data.model.request.AddressDataModel
 import com.zainco.data.model.response.CartResponse
@@ -18,15 +8,22 @@ import com.zainco.data.model.response.CartSummaryResponse
 import com.zainco.data.model.response.CategoriesListResponse
 import com.zainco.data.model.response.OrdersListResponse
 import com.zainco.data.model.response.PlaceOrderResponse
-import com.zainco.data.model.response.ProductListResponse
+import com.zainco.domain.model.AddressDomainModel
+import com.zainco.domain.model.CartItemModel
+import com.zainco.domain.model.CartModel
+import com.zainco.domain.model.CartSummary
+import com.zainco.domain.model.CategoriesListModel
+import com.zainco.domain.model.OrdersListModel
 import com.zainco.domain.model.Product
+import com.zainco.domain.model.request.AddCartRequestModel
+import com.zainco.domain.network.NetworkService
+import com.zainco.domain.network.ResultWrapper
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.ServerResponseException
 import io.ktor.client.request.header
 import io.ktor.client.request.request
-import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.Parameters
@@ -35,10 +32,12 @@ import io.ktor.util.InternalAPI
 import io.ktor.utils.io.errors.IOException
 
 class NetworkServiceImpl(val client: HttpClient) : NetworkService {
-    private val baseUrl = "https://ecommerce-ktor-4641e7ff1b63.herokuapp.com/v2"
-    override suspend fun getProducts(): ResultWrapper<List<Product>> {
+    private val baseUrl = "https://fakestoreapi.com"
+    override suspend fun getProducts(category: String?): ResultWrapper<List<Product>> {
+        val url =
+            if (category == null) "$baseUrl/products" else "$baseUrl/products/category/$category"
         return makeWebRequest(
-            url = "https://fakestoreapi.com/products",
+            url = url,
             method = HttpMethod.Get,
             mapper = { dataModels: List<DataProductModel> ->
                 dataModels.map { it.toProduct() }
@@ -126,7 +125,6 @@ class NetworkServiceImpl(val client: HttpClient) : NetworkService {
     }
 
 
-
     @OptIn(InternalAPI::class)
     suspend inline fun <reified T, R> makeWebRequest(
         url: String,
@@ -134,7 +132,7 @@ class NetworkServiceImpl(val client: HttpClient) : NetworkService {
         body: Any? = null,
         headers: Map<String, String> = emptyMap(),
         parameters: Map<String, String> = emptyMap(),
-        noinline mapper: ((T) -> R)? = null
+        noinline mapper: ((T) -> R)? = null,
     ): ResultWrapper<R> {
         return try {
             val response = client.request(url) {

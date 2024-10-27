@@ -15,7 +15,7 @@ import org.koin.dsl.module
 
 val networkModule = module {
     single {
-        HttpClient(CIO) {
+        val client = HttpClient(CIO) {
             install(ContentNegotiation) {
                 json(Json {
                     prettyPrint = true
@@ -32,6 +32,7 @@ val networkModule = module {
                 }
             }
         }
+        client
     }
     single<NetworkService> {
         NetworkServiceImpl(get())

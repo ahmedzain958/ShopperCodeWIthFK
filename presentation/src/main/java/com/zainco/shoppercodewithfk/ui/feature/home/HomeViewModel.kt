@@ -3,7 +3,6 @@ package com.zainco.shoppercodewithfk.ui.feature.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zainco.domain.model.Product
-import com.zainco.domain.model.ProductListModel
 import com.zainco.domain.network.ResultWrapper
 import com.zainco.domain.usecase.GetProductUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,25 +16,35 @@ class HomeViewModel(private val getProductUseCase: GetProductUseCase) : ViewMode
     val uiState: StateFlow<HomeScreenUIEvents> = _uiState.asStateFlow()
 
     init {
-        getProducts()
+        getAllProducts()
     }
 
-    private fun getProducts() {
+    private fun getAllProducts() {
         viewModelScope.launch {
-            getProductUseCase.execute(0).let { result: ResultWrapper<List<Product>> ->
-                when (result) {
-                    is ResultWrapper.Success -> {
-                        val data = result.value
-                        _uiState.value = HomeScreenUIEvents.Success(data)
-                    }
+            _uiState.value = HomeScreenUIEvents.Loading
+            val featured = getProducts("electronics")
+            val popularProducts = getProducts("jewelery")
+            if (featured.isEmpty() || popularProducts.isEmpty()) {
+                _uiState.value = HomeScreenUIEvents.Error("Failed to load products")
+                return@launch
+            }
+            _uiState.value = HomeScreenUIEvents.Success(featured, popularProducts)
+        }
+    }
 
-                    is ResultWrapper.Failure -> {
-                        val error = result.exception.message ?: "Something went wrong"
-                        _uiState.value = HomeScreenUIEvents.Error(error)
-                    }
+    private suspend fun getProducts(category: String?): List<Product> {
+        getProductUseCase.execute(category).let { result: ResultWrapper<List<Product>> ->
+            when (result) {
+                is ResultWrapper.Success -> {
+                    val data = result.value
+                    return data
+                }
+
+                is ResultWrapper.Failure -> {
+                    return emptyList()
+
                 }
             }
-
         }
     }
 }
@@ -43,6 +52,8 @@ class HomeViewModel(private val getProductUseCase: GetProductUseCase) : ViewMode
 sealed class HomeScreenUIEvents {
     object Loading : HomeScreenUIEvents()
     object NavigateToProductDetail : HomeScreenUIEvents()
-    data class Success(val data: List<Product>) : HomeScreenUIEvents()
+    data class Success(val featured: List<Product>, val popularProducts: List<Product>) :
+        HomeScreenUIEvents()
+
     data class Error(val message: String) : HomeScreenUIEvents()
 }
