@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
                                     Text(text = "Cart")
                                 }
                             }
-                            composable<CartScreen> {
+                            composable<ProfileScreen> {
                                 Box(modifier = Modifier.fillMaxSize()) {
                                     Text(text = "profile")
                                 }
