@@ -28,15 +28,10 @@ class HomeViewModel(
     private fun getAllProducts() {
         viewModelScope.launch {
             _uiState.value = HomeScreenUIEvents.Loading
-            val featured = async {
-                delay(1000)
-                getProducts("electronics")
-            }.await()
-            val popularProducts = async { getProducts("jewelery") }.await()
-            val categories = async {
-                getCategory()
-            }.await()
-            if (featured.isEmpty() && popularProducts.isEmpty() && categories.isEmpty()) {
+            val featured = getProducts(1)
+            val popularProducts = getProducts(2)
+            val categories = getCategory()
+            if (featured.isEmpty() && popularProducts.isEmpty() && categories.isNotEmpty()) {
                 _uiState.value = HomeScreenUIEvents.Error("Failed to load products")
                 return@launch
             }
@@ -44,33 +39,31 @@ class HomeViewModel(
         }
     }
 
-    private suspend fun getProducts(category: String?): List<Product> {
-        getProductUseCase.execute(category).let { result: ResultWrapper<List<Product>> ->
+
+
+    private suspend fun getProducts(category: Int?): List<Product> {
+        getProductUseCase.execute(category).let { result ->
             when (result) {
                 is ResultWrapper.Success -> {
-                    val data = result.value
-                    return data
+                    return (result).value.products
                 }
 
                 is ResultWrapper.Failure -> {
                     return emptyList()
-
                 }
             }
         }
     }
 
     private suspend fun getCategory(): List<String> {
-        getCategoriesUseCase.execute().let { result: ResultWrapper<List<String>> ->
+        getCategoriesUseCase.execute().let { result ->
             when (result) {
                 is ResultWrapper.Success -> {
-                    val data = result.value
-                    return data
+                    return (result).value.categories.map { it.title }
                 }
 
                 is ResultWrapper.Failure -> {
                     return emptyList()
-
                 }
             }
         }

@@ -11,8 +11,8 @@ import com.zainco.domain.model.ProductListModel
 import com.zainco.domain.model.request.AddCartRequestModel
 
 interface NetworkService {
-    suspend fun getProducts(category: String?): ResultWrapper<List<Product>>
-    suspend fun getCategories(): ResultWrapper<List<String>>
+    suspend fun getProducts(category:Int?): ResultWrapper<ProductListModel>
+    suspend fun getCategories(): ResultWrapper<CategoriesListModel>
 
     suspend fun addProductToCart(
         request: AddCartRequestModel
