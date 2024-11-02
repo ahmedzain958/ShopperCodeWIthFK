@@ -5,6 +5,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,6 +49,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.zainco.domain.model.Product
+import com.zainco.shoppercodewithfk.model.UiProductModel
+import com.zainco.shoppercodewithfk.navigation.ProductDetails
 import com.zainco.shoppercodewithfk.ui.feature.home.HomeScreenUIEvents
 import com.zainco.shoppercodewithfk.ui.feature.home.HomeViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -102,8 +105,13 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = koinView
                 HomeScreenUIEvents.NavigateToProductDetail -> TODO()
             }
             HomeContent(
-                feature.value, popular.value, categories.value, loading.value, error.value, onClick = {
-//                    navController.navigate(ProductDetails(UiProductModel.fromProduct(it)))
+                feature.value,
+                popular.value,
+                categories.value,
+                loading.value,
+                error.value,
+                onClick = {
+                    navController.navigate(ProductDetails(UiProductModel.fromProduct(it)))
                 }
             )
         }
@@ -267,6 +275,9 @@ fun SearchBar(value: String, onTextChanged: (String) -> Unit) {
 fun ProductItem(product: Product, onClick: (Product) -> Unit) {
     Card(
         modifier = Modifier
+            .clickable {
+                onClick(product)
+            }
             .padding(horizontal = 8.dp)
             .size(width = 126.dp, height = 144.dp), shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Green.copy(alpha = 0.3f))

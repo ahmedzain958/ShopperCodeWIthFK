@@ -24,10 +24,15 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+import com.zainco.shoppercodewithfk.model.UiProductModel
 import com.zainco.shoppercodewithfk.navigation.CartScreen
 import com.zainco.shoppercodewithfk.navigation.HomeScreen
+import com.zainco.shoppercodewithfk.navigation.ProductDetails
 import com.zainco.shoppercodewithfk.navigation.ProfileScreen
+import com.zainco.shoppercodewithfk.navigation.productNavType
 import com.zainco.shoppercodewithfk.ui.theme.ShopperCodeWIthFKTheme
+import kotlin.reflect.typeOf
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,10 +65,16 @@ class MainActivity : ComponentActivity() {
                                     Text(text = "profile")
                                 }
                             }
+
+                            composable<ProductDetails>(typeMap = mapOf(typeOf<UiProductModel>() to productNavType)) {
+                                val productRoute = it.toRoute<ProductDetails>()
+                                Box(modifier = Modifier.fillMaxSize()) {
+                                    Text(text = productRoute.product.title)
+                                }
+                            }
                         }
                     }
                 }
-
             }
         }
     }
