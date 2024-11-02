@@ -1,6 +1,5 @@
 package com.zainco.shoppercodewithfk.navigation
 
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
@@ -11,6 +10,7 @@ import kotlinx.serialization.json.Json
 import java.net.URLDecoder
 import java.net.URLEncoder
 import java.util.Base64
+
 //without parcelable, only serializable
 /* https://www.youtube.com/watch?v=qBxaZ071N0c&t=342s
 val productNavType = object : NavType<UiProductModel>(isNullableAllowed = false) {
@@ -52,16 +52,18 @@ val productNavType = object : NavType<UiProductModel>(isNullableAllowed = false)
         return Json.encodeToString(
             value.copy(
                 image = URLEncoder.encode(value.image, "UTF-8"),
+
                 description = String(
                     Base64.getEncoder().encode(value.description.toByteArray())
                 ).replace("/", "_"),
-                title = String(Base64.getEncoder().encode(value.title.toByteArray())).replace(
-                    "/",
-                    "_"
-                )
+
+                title = String(
+                    Base64.getEncoder().encode(value.title.toByteArray())
+                ).replace("/", "_")
             )
         )
     }
+
     override fun put(bundle: Bundle, key: String, value: UiProductModel) {
         bundle.putParcelable(key, value)
     }

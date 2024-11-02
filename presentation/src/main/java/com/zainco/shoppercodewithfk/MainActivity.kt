@@ -28,7 +28,7 @@ import androidx.navigation.toRoute
 import com.zainco.shoppercodewithfk.model.UiProductModel
 import com.zainco.shoppercodewithfk.navigation.CartScreen
 import com.zainco.shoppercodewithfk.navigation.HomeScreen
-import com.zainco.shoppercodewithfk.navigation.ProductDetails
+import com.zainco.shoppercodewithfk.navigation.ProductDetailsScreen
 import com.zainco.shoppercodewithfk.navigation.ProfileScreen
 import com.zainco.shoppercodewithfk.navigation.productNavType
 import com.zainco.shoppercodewithfk.ui.theme.ShopperCodeWIthFKTheme
@@ -66,8 +66,8 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
 
-                            composable<ProductDetails>(typeMap = mapOf(typeOf<UiProductModel>() to productNavType)) {
-                                val productRoute = it.toRoute<ProductDetails>()
+                            composable<ProductDetailsScreen>(typeMap = mapOf(typeOf<UiProductModel>() to productNavType)) {
+                                val productRoute: ProductDetailsScreen = it.toRoute<ProductDetailsScreen>()
                                 Box(modifier = Modifier.fillMaxSize()) {
                                     Text(text = productRoute.product.title)
                                 }
