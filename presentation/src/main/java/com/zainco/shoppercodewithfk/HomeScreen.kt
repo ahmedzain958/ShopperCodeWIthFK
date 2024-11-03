@@ -50,7 +50,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.zainco.domain.model.Product
 import com.zainco.shoppercodewithfk.model.UiProductModel
-import com.zainco.shoppercodewithfk.navigation.ProductDetailsScreen
+import com.zainco.shoppercodewithfk.navigation.ProductDetailsRouteScreen
 import com.zainco.shoppercodewithfk.ui.feature.home.HomeScreenUIEvents
 import com.zainco.shoppercodewithfk.ui.feature.home.HomeViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -111,7 +111,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = koinView
                 loading.value,
                 error.value,
                 onClick = {
-                    navController.navigate(ProductDetailsScreen(UiProductModel.fromProduct(it)))
+                    navController.navigate(ProductDetailsRouteScreen(UiProductModel.fromProduct(it)))
                 }
             )
         }
@@ -280,7 +280,7 @@ fun ProductItem(product: Product, onClick: (Product) -> Unit) {
             }
             .padding(horizontal = 8.dp)
             .size(width = 126.dp, height = 144.dp), shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Green.copy(alpha = 0.3f))
+        colors = CardDefaults.cardColors(containerColor = Color.LightGray.copy(alpha = 0.3f))
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             AsyncImage(

@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +18,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -23,14 +30,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.zainco.shoppercodewithfk.model.UiProductModel
 import com.zainco.shoppercodewithfk.navigation.CartScreen
 import com.zainco.shoppercodewithfk.navigation.HomeScreen
-import com.zainco.shoppercodewithfk.navigation.ProductDetailsScreen
+import com.zainco.shoppercodewithfk.navigation.ProductDetailsRouteScreen
 import com.zainco.shoppercodewithfk.navigation.ProfileScreen
 import com.zainco.shoppercodewithfk.navigation.productNavType
+import com.zainco.shoppercodewithfk.ui.feature.product_details.ProductDetailsScreen
+import com.zainco.shoppercodewithfk.ui.theme.Purple40
 import com.zainco.shoppercodewithfk.ui.theme.ShopperCodeWIthFKTheme
 import kotlin.reflect.typeOf
 
@@ -40,11 +50,18 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ShopperCodeWIthFKTheme {
+                var shouldShowBottomNav = remember {
+                    mutableStateOf(false)
+                }
                 val navController = rememberNavController()
-                Scaffold(modifier = Modifier
-                    .fillMaxSize(),
+                Scaffold(modifier = Modifier.fillMaxSize(),
                     bottomBar = {
-                        BottomNavigationBar(navController)
+                        LaunchedEffect(true) {
+                            shouldShowBottomNav.value = true
+                        }
+                        AnimatedVisibility(visible = shouldShowBottomNav.value, enter = fadeIn()) {
+                            BottomNavigationBar(navController)
+                        }
                     }) {
                     Surface(
                         modifier = Modifier
@@ -54,23 +71,26 @@ class MainActivity : ComponentActivity() {
                         NavHost(navController = navController, startDestination = HomeScreen) {
                             composable<HomeScreen> {
                                 HomeScreen(navController)
+                                shouldShowBottomNav.value = true
                             }
                             composable<CartScreen> {
+                                shouldShowBottomNav.value = true
                                 Box(modifier = Modifier.fillMaxSize()) {
                                     Text(text = "Cart")
                                 }
                             }
                             composable<ProfileScreen> {
+                                shouldShowBottomNav.value = true
                                 Box(modifier = Modifier.fillMaxSize()) {
                                     Text(text = "profile")
                                 }
                             }
 
-                            composable<ProductDetailsScreen>(typeMap = mapOf(typeOf<UiProductModel>() to productNavType)) {
-                                val productRoute: ProductDetailsScreen = it.toRoute<ProductDetailsScreen>()
-                                Box(modifier = Modifier.fillMaxSize()) {
-                                    Text(text = productRoute.product.title)
-                                }
+                            composable<ProductDetailsRouteScreen>(typeMap = mapOf(typeOf<UiProductModel>() to productNavType)) {
+                                shouldShowBottomNav.value = false
+                                val productRoute: ProductDetailsRouteScreen =
+                                    it.toRoute<ProductDetailsRouteScreen>()
+                                ProductDetailsScreen(navController, productRoute.product)
                             }
                         }
                     }
@@ -83,15 +103,16 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun BottomNavigationBar(navController: NavController) {
     NavigationBar {
-        val currentRoute = navController.currentBackStackEntry?.destination?.route
+        val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
         val items = listOf(
             BottomNavItems.Home,
             BottomNavItems.Cart,
             BottomNavItems.Profile
         )
         items.forEach { item ->
+            val isSelected = currentRoute?.substringBefore("?") == item.route::class.qualifiedName
             NavigationBarItem(
-                selected = currentRoute == item.route,
+                selected = isSelected,
                 onClick = {
                     navController.navigate(item.route) {
                         navController.graph.startDestinationRoute?.let { startRoute ->
@@ -109,7 +130,7 @@ fun BottomNavigationBar(navController: NavController) {
                 icon = {
                     Image(
                         painter = painterResource(id = item.icon), contentDescription = null,
-                        colorFilter = ColorFilter.tint(if (currentRoute == item.route) MaterialTheme.colorScheme.primary else Color.Gray)
+                        colorFilter = ColorFilter.tint(if (isSelected) Purple40 else Color.Gray)
                     )
                 }, colors = NavigationBarItemDefaults.colors().copy(
                     selectedIconColor = MaterialTheme.colorScheme.primary,

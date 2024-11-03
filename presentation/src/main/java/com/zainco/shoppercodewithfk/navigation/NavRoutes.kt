@@ -13,4 +13,4 @@ object CartScreen
 object ProfileScreen
 
 @Serializable
-data class ProductDetailsScreen(val product: UiProductModel)
+data class ProductDetailsRouteScreen(val product: UiProductModel)
