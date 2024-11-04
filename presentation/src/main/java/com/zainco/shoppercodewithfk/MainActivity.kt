@@ -35,11 +35,14 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.zainco.shoppercodewithfk.model.UiProductModel
 import com.zainco.shoppercodewithfk.navigation.CartScreen
+import com.zainco.shoppercodewithfk.navigation.CartSummaryScreen
 import com.zainco.shoppercodewithfk.navigation.HomeScreen
 import com.zainco.shoppercodewithfk.navigation.ProductDetailsRouteScreen
 import com.zainco.shoppercodewithfk.navigation.ProfileScreen
 import com.zainco.shoppercodewithfk.navigation.productNavType
+import com.zainco.shoppercodewithfk.ui.feature.cart.CartScreen
 import com.zainco.shoppercodewithfk.ui.feature.product_details.ProductDetailsScreen
+import com.zainco.shoppercodewithfk.ui.feature.summary.CartSummaryScreen
 import com.zainco.shoppercodewithfk.ui.theme.Purple40
 import com.zainco.shoppercodewithfk.ui.theme.ShopperCodeWIthFKTheme
 import kotlin.reflect.typeOf
@@ -75,9 +78,7 @@ class MainActivity : ComponentActivity() {
                             }
                             composable<CartScreen> {
                                 shouldShowBottomNav.value = true
-                                Box(modifier = Modifier.fillMaxSize()) {
-                                    Text(text = "Cart")
-                                }
+                                CartScreen(navController)
                             }
                             composable<ProfileScreen> {
                                 shouldShowBottomNav.value = true
@@ -85,7 +86,10 @@ class MainActivity : ComponentActivity() {
                                     Text(text = "profile")
                                 }
                             }
-
+                            composable<CartSummaryScreen> {
+                                shouldShowBottomNav.value = false
+                                CartSummaryScreen(navController = navController)
+                            }
                             composable<ProductDetailsRouteScreen>(typeMap = mapOf(typeOf<UiProductModel>() to productNavType)) {
                                 shouldShowBottomNav.value = false
                                 val productRoute: ProductDetailsRouteScreen =

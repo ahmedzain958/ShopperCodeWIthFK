@@ -1,5 +1,6 @@
 package com.zainco.shoppercodewithfk.di
 
+import com.zainco.shoppercodewithfk.ui.feature.cart.CartViewModel
 import com.zainco.shoppercodewithfk.ui.feature.home.HomeViewModel
 import com.zainco.shoppercodewithfk.ui.feature.product_details.ProductDetailsViewModel
 import org.koin.core.module.dsl.viewModel
@@ -11,5 +12,8 @@ val viewModelModule = module {
     }
     viewModel {
         ProductDetailsViewModel(get())
+    }
+    viewModel {
+        CartViewModel(get(), get(), get())
     }
 }
