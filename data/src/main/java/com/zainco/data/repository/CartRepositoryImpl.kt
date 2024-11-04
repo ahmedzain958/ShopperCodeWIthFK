@@ -8,7 +8,7 @@ import com.zainco.domain.network.NetworkService
 import com.zainco.domain.network.ResultWrapper
 import com.zainco.domain.repository.CartRepository
 
-class CartRepositoryImpl(val networkService: NetworkService) : CartRepository {
+class CartRepositoryImpl(private val networkService: NetworkService) : CartRepository {
     override suspend fun addProductToCart(request: AddCartRequestModel): ResultWrapper<CartModel> {
         return networkService.addProductToCart(request)
     }

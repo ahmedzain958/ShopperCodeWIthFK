@@ -55,7 +55,7 @@ class NetworkServiceImpl(val client: HttpClient) : NetworkService {
     }
 
     override suspend fun addProductToCart(request: AddCartRequestModel): ResultWrapper<CartModel> {
-        val url = "$baseUrl/cart/1"
+        val url = "$baseUrl/cart/1"// 1: is the userid as we don't have login feature
         return makeWebRequest(url = url,
             method = HttpMethod.Post,
             body = AddToCartRequest.fromCartRequestModel(request),
