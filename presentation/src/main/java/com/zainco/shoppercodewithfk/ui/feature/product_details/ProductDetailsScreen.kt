@@ -41,70 +41,14 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.zainco.shoppercodewithfk.R
 import com.zainco.shoppercodewithfk.model.UiProductModel
-import com.zainco.shoppercodewithfk.ui.feature.product_details.ProductDetailsUIEvent.*
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ProductDetailsScreen(
     navController: NavController,
     product: UiProductModel,
-    viewModel: ProductDetailsViewModel = koinViewModel(),
+    viewModel: ProductDetailsViewModel = koinViewModel()
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        val uiState = viewModel.uiState.collectAsState()
-        val loading = remember {
-            mutableStateOf(false)
-        }
-        LaunchedEffect(uiState.value) {
-            when (uiState.value) {
-                is Loading -> {
-                    // Show loading
-                    loading.value = true
-                }
-
-                is Success -> {
-                    // Show success
-                    loading.value = false
-                    Toast.makeText(
-                        navController.context,
-                        (uiState.value as Success).message,
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-
-                is Error -> {
-                    // Show error
-                    Toast.makeText(
-                        navController.context,
-                        (uiState.value as Error).message,
-                        Toast.LENGTH_LONG
-                    ).show()
-                    loading.value = false
-                }
-
-                else -> {
-                    loading.value = false
-                }
-            }
-        }
-
-        if (loading.value) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.7f)),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                CircularProgressIndicator()
-                Text(
-                    text = "Adding to cart...",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-            }
-        }
-    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -212,7 +156,10 @@ fun ProductDetailsScreen(
                     .fillMaxSize()
                     .padding(horizontal = 16.dp)
             ) {
-                Button(onClick = { viewModel.addProductToCart(product) }, modifier = Modifier.weight(1f)) {
+                Button(
+                    onClick = { viewModel.addProductToCart(product) },
+                    modifier = Modifier.weight(1f)
+                ) {
                     Text(text = "Buy Now")
                 }
                 Spacer(modifier = Modifier.size(8.dp))
@@ -230,28 +177,79 @@ fun ProductDetailsScreen(
             }
 
         }
+    }
 
+    Box(modifier = Modifier.fillMaxSize()) {
+        val uiState = viewModel.state.collectAsState()
+        val loading = remember {
+            mutableStateOf(false)
+        }
+        LaunchedEffect(uiState.value) {
+            when (uiState.value) {
+                is ProductDetailsEvent.Loading -> {
+                    // Show loading
+                    loading.value = true
+                }
+
+                is ProductDetailsEvent.Success -> {
+                    // Show success
+                    loading.value = false
+                    Toast.makeText(
+                        navController.context,
+                        (uiState.value as ProductDetailsEvent.Success).message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+
+                is ProductDetailsEvent.Error -> {
+                    // Show error
+                    Toast.makeText(
+                        navController.context,
+                        (uiState.value as ProductDetailsEvent.Error).message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                    loading.value = false
+                }
+
+                else -> {
+                    loading.value = false
+                }
+            }
+        }
+
+        if (loading.value) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.7f)),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                CircularProgressIndicator()
+                Text(
+                    text = "Adding to cart...",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        }
     }
 }
 
 @Composable
 fun SizeItem(size: String, isSelected: Boolean, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .padding(horizontal = 4.dp)
-            .size(48.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .border(
-                width = 1.dp,
-                color = Color.Gray,
-                shape = RoundedCornerShape(8.dp)
-            )
-            .background(
-                if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
-            )
-            .padding(8.dp)
-            .clickable { onClick() }
-    ) {
+    Box(modifier = Modifier
+        .padding(horizontal = 4.dp)
+        .size(48.dp)
+        .clip(RoundedCornerShape(8.dp))
+        .border(
+            width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(8.dp)
+        )
+        .background(
+            if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
+        )
+        .padding(8.dp)
+        .clickable { onClick() }) {
         Text(
             text = size,
             style = MaterialTheme.typography.bodySmall,

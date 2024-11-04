@@ -26,6 +26,7 @@ import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.ServerResponseException
 import io.ktor.client.request.header
 import io.ktor.client.request.request
+import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.Parameters
@@ -34,7 +35,7 @@ import io.ktor.util.InternalAPI
 import io.ktor.utils.io.errors.IOException
 
 class NetworkServiceImpl(val client: HttpClient) : NetworkService {
-    private val baseUrl = "https://ecommerce-ktor-4641e7ff1b63.herokuapp.com"
+    private val baseUrl = "https://ecommerce-ktor-4641e7ff1b63.herokuapp.com/v2"
     override suspend fun getProducts(category: Int?): ResultWrapper<ProductListModel> {
         val url =
             if (category != null) "$baseUrl/products/category/$category" else "$baseUrl/products"
@@ -55,7 +56,7 @@ class NetworkServiceImpl(val client: HttpClient) : NetworkService {
     }
 
     override suspend fun addProductToCart(request: AddCartRequestModel): ResultWrapper<CartModel> {
-        val url = "$baseUrl/cart/1"// 1: is the userid as we don't have login feature
+        val url = "$baseUrl/cart/1"
         return makeWebRequest(url = url,
             method = HttpMethod.Post,
             body = AddToCartRequest.fromCartRequestModel(request),
@@ -104,35 +105,13 @@ class NetworkServiceImpl(val client: HttpClient) : NetworkService {
             })
     }
 
-    override suspend fun placeOrder(address: AddressDomainModel, userId: Int): ResultWrapper<Long> {
-        val dataModel = AddressDataModel.fromDomainAddress(address)
-        val url = "$baseUrl/orders/$userId"
-        return makeWebRequest(url = url,
-            method = HttpMethod.Post,
-            body = dataModel,
-            mapper = { orderRes: PlaceOrderResponse ->
-                orderRes.data.id
-            })
-    }
-
-    override suspend fun getOrderList(): ResultWrapper<OrdersListModel> {
-        val url = "$baseUrl/orders/1"
-        return makeWebRequest(url = url,
-            method = HttpMethod.Get,
-            mapper = { ordersResponse: OrdersListResponse ->
-                ordersResponse.toDomainResponse()
-            })
-    }
-
-
-    @OptIn(InternalAPI::class)
     suspend inline fun <reified T, R> makeWebRequest(
         url: String,
         method: HttpMethod,
         body: Any? = null,
         headers: Map<String, String> = emptyMap(),
         parameters: Map<String, String> = emptyMap(),
-        noinline mapper: ((T) -> R)? = null,
+        noinline mapper: ((T) -> R)? = null
     ): ResultWrapper<R> {
         return try {
             val response = client.request(url) {
@@ -151,7 +130,7 @@ class NetworkServiceImpl(val client: HttpClient) : NetworkService {
                 }
                 // Set body for POST, PUT, etc.
                 if (body != null) {
-                    this.body = body
+                    setBody(body)
                 }
 
                 // Set content type
@@ -169,6 +148,5 @@ class NetworkServiceImpl(val client: HttpClient) : NetworkService {
             ResultWrapper.Failure(e)
         }
     }
-
 
 }

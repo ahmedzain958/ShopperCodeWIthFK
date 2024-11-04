@@ -5,6 +5,7 @@ import com.zainco.domain.model.OrdersListModel
 import com.zainco.domain.network.NetworkService
 import com.zainco.domain.network.ResultWrapper
 import com.zainco.domain.repository.OrderRepository
+/*
 
 class OrderRepositoryImpl(private val networkService: NetworkService) : OrderRepository {
     override suspend fun placeOrder(addressDomainModel: AddressDomainModel): ResultWrapper<Long> {
@@ -14,4 +15,4 @@ class OrderRepositoryImpl(private val networkService: NetworkService) : OrderRep
     override suspend fun getOrderList(): ResultWrapper<OrdersListModel> {
         return networkService.getOrderList()
     }
-}
+}*/
