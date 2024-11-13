@@ -49,7 +49,7 @@ fun CartSummaryScreen(
         }
         val uiState = viewModel.uiState.collectAsState()
         Box(
-            modifier = Modifier.weight(1f).fillMaxWidth()
+            modifier = Modifier.weight(1f)/*.fillMaxWidth()*/
         ) {
             when (val event = uiState.value) {
                 is CartSummaryEvent.Loading -> {
